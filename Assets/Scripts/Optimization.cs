@@ -11,26 +11,26 @@ public class Optimization : MonoBehaviour
 {
 	public float speed = 1f;
 
-	private List<MeshFilter> meshFilters;
+	private List<MeshCollider> meshColliders;
 
 	private void Start()
 	{
-		meshFilters = new List<MeshFilter>();
+		meshColliders = FindObjectsOfType<MeshCollider>().ToList();
 
-		meshFilters.AddRange(FindObjectsOfType<MeshFilter>().ToList());
-	}
+	} // Start()
 
 	private void Update()
 	{
-		foreach (var meshFilter in meshFilters)
-		{
-			if (meshFilter.GetComponentInChildren<MeshCollider>())
-			{
-				for (var i = 0; i < meshFilter.mesh.vertices.Length; i++)
-				{
-					meshFilter.mesh.vertices[i] += Vector3.up * speed * Time.deltaTime;
-				}
+        foreach (MeshCollider meshColl in meshColliders)
+        {
+            for (int i = 0; i < meshColl.sharedMesh.vertices.Length; i++)
+            {
+				meshColl.sharedMesh.vertices[i] += Vector3.up * speed * Time.deltaTime;
 			}
-		}
-	}
-}
+        }
+
+	} // Update()
+
+	// previous method was fetching a component reference in everyframe. fixed it.
+
+} // class

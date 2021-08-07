@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using UnityEditor;
+using UnityEngine;
 
 /*
  * 
@@ -15,6 +16,13 @@ public static class Utility
 		 *	Perform a raycast using the ray provided, only to objects of the specified 'layer' within 'maxDistance' and return if something is hit. 
 		 */
 
+		int tmpLayerMask = 1 << layer;
+
+        if (Physics.Raycast(ray, maxDistance, tmpLayerMask))
+        {
+			return true;
+        }
+
 		return false;
 	}
 
@@ -27,7 +35,29 @@ public static class Utility
 		 * Is there a known algorithm that achieves this?
 		 */
 
-		return null;
+		float radius = 0.5f; // actually is (1,1) but it needs to be 0.5 for prevent negative pos.
+
+		Vector2[] randomPoints = new Vector2[size];
+
+		for (int i = 0; i < randomPoints.Length; i++)
+		{
+			var k = i + .5f;
+			var r = Mathf.Sqrt((k) / size);
+			var theta = Mathf.PI * (1 + Mathf.Sqrt(5)) * k;
+			var x = r * Mathf.Cos(theta) * radius;
+			var y = r * Mathf.Sin(theta) * radius;
+
+			x += radius;
+			y += radius;
+
+			Vector2 tmpRandomPoint = new Vector2(x, y);
+			randomPoints[i] = tmpRandomPoint;
+		}
+
+		return randomPoints;
+
+		// i used fibonacci method here but there is randomized and more complex method called "Poisson Disc Sampling"
+		// but i didnt implement it here because its too complicated.
 	}
 
 
@@ -37,9 +67,22 @@ public static class Utility
 		 * Create a Texture2D object of specified 'width' and 'height', fill it with 'color' and return it. Do it as performant as possible.
 		 */
 
-		return null;
+		Texture2D texture = new Texture2D(width, height);
+
+		for (int x = 0; x < texture.width; x++)
+		{
+			for (int y = 0; y < texture.height; y++)
+			{
+				texture.SetPixel(x, y, color);
+			}
+		}
+
+		texture.Apply();
+
+		return texture;
 	}
 
+	[MenuItem("GameObject/Select All Active", false, 1)]
 	public static void SelectAllActiveGameObjects()
 	{
 		/*
@@ -47,5 +90,7 @@ public static class Utility
 		 * Do it in a single line.
 		 * It should be called through the Unity toolbar menu item "GameObject/Select All Active".
 		 */
+
+		Selection.objects = GameObject.FindObjectsOfType<GameObject>();
 	}
 }

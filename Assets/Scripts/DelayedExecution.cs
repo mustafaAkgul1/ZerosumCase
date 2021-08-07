@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 public class DelayedExecution : MonoBehaviour
 {
@@ -13,12 +14,27 @@ public class DelayedExecution : MonoBehaviour
 	private void Start()
 	{
 		// Delayed.Execute(MyFunction, 2f);
+
+		//Option - 1
+		Invoke("MyFunction", 2f);
+
+		//Option - 2
+		StartCoroutine(DelayedExecute(2f));
 	}
+
+	//Option - 2 Necessary Method
+	IEnumerator DelayedExecute(float _delayTime)
+    {
+		yield return new WaitForSeconds(_delayTime);
+
+		MyFunction();
+
+	} // DelayedExecute()
 
 	private void MyFunction()
 	{
 		Debug.Log("Executed with delay.");
-	}
 
-}
+	} // MyFunction()
+} // class
 

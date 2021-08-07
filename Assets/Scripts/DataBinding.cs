@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 /*
@@ -21,20 +22,51 @@ using UnityEngine.UI;
  * 
  */
 
+[System.Serializable]
+public class EventsManager : UnityEvent<float>
+{
+	// it can be "<T>" type so transfer any type of parameter but i couldnt do that right now.
+
+} // class
 
 public class Data : MonoBehaviour
 {
 	private float data = 0f;
+	EventsManager TextUpdaterEvent = new EventsManager();
 
 	private void Update()
 	{
 		data += Time.deltaTime * 5f;
-	}
-}
+		TextUpdaterEvent.Invoke(data);
+
+	} // Update()
+
+} // class
 
 
 public class TextSetter : MonoBehaviour
 {
+	EventsManager TextUpdaterEvent = new EventsManager();
+
 	[SerializeField]
 	private Text text;
-}
+
+    private void OnEnable()
+    {
+		TextUpdaterEvent.AddListener(UpdateTextValue);
+
+	} // OnEnable()
+
+	private void OnDisable()
+	{
+		TextUpdaterEvent.RemoveListener(UpdateTextValue);
+
+	} // OnDisable()
+
+	private void UpdateTextValue(float _value)
+    {
+		text.text = _value.ToString();
+
+	} // UpdateTextValue ()
+
+} // class

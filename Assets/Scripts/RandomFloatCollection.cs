@@ -18,5 +18,49 @@
  * 
  */
 
+using System.Collections.Generic;
+using UnityEngine;
 
-//public class RandomFloatCollection...
+[CreateAssetMenu(fileName = "RandomFloatCollectionData", menuName = "Random/FloatCollection", order = 1)]
+public class RandomFloatCollection : ScriptableObject
+{
+    public int collectionSize;
+    public List<float> collectionList;
+
+    public void GenerateCollection()
+    {
+        collectionList = new List<float>();
+
+        for (int i = 0; i < collectionSize; i++)
+        {
+            float tmpRnd = Random.Range(0, 1f);
+
+            collectionList.Add(tmpRnd);
+        }
+
+    } // GenerateCollection()
+
+} // class
+
+
+#if UNITY_EDITOR
+
+[UnityEditor.CustomEditor(typeof(RandomFloatCollection))]
+public class ButtonDrawer : UnityEditor.Editor
+{
+    public override void OnInspectorGUI()
+    {
+        base.OnInspectorGUI();
+
+        RandomFloatCollection randomFloatCollection = (RandomFloatCollection)target;
+
+        if (GUILayout.Button("Generate"))
+        {
+            randomFloatCollection.GenerateCollection();
+        }
+
+    } // OnInspectorGUI()
+
+} // class
+
+#endif

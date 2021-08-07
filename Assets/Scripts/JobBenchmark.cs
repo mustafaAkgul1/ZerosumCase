@@ -1,4 +1,10 @@
 ﻿using UnityEngine;
+using UnityEngine.Jobs;
+using Unity.Burst;
+using Unity.Mathematics;
+using System.Threading.Tasks;
+using Unity.Jobs;
+using Unity.Collections;
 
 /*
  *
@@ -18,23 +24,62 @@ public class JobBenchmark : MonoBehaviour
 
 	private float[] values;
 
+	[Header("General Variables")]
+	NativeArray<float> valuesWithJob;
+	JobHandle calculationJobHandle;
+	Calculation calculationJob;
+
 	void Start()
 	{
 		values = new float[count];
-	}
+		valuesWithJob = new NativeArray<float>(count, Allocator.Persistent);
+
+	} // Start()
 
 	void Update()
 	{
 		if (useJob)
 		{
-			// Job here
+			calculationJob = new Calculation()
+			{
+				_valuesWithJob = valuesWithJob
+			};
+
+			calculationJobHandle = calculationJob.Schedule(valuesWithJob.Length, 64);
 		}
 		else
 		{
-			for (int i = 0; i < values.Length; i++)
-			{
-				values[i] = Mathf.Sqrt(Mathf.Pow(values[i] + 1.75f, 2.5f + i)) * 5 + 2f;
-			}
-		}
-	}
-}
+            for (int i = 0; i < values.Length; i++)
+            {
+                values[i] = Mathf.Sqrt(Mathf.Pow(values[i] + 1.75f, 2.5f + i)) * 5 + 2f;
+            }
+        }
+
+	} // Update()
+
+	private void LateUpdate()
+    {
+		calculationJobHandle.Complete();
+
+	} // LateUpdate()
+
+	private void OnDestroy()
+    {
+		valuesWithJob.Dispose();
+
+	} // OnDestroy()
+
+	[BurstCompile]
+    private struct Calculation : IJobParallelFor
+    {
+		public NativeArray<float> _valuesWithJob;
+
+		public void Execute(int i)
+        {
+			_valuesWithJob[i] = Mathf.Sqrt(Mathf.Pow(_valuesWithJob[i] + 1.75f, 2.5f + i)) * 5 + 2f;
+
+		} // Execute()
+
+	} // struct
+
+} // class
